@@ -1,5 +1,5 @@
 FROM python:3.12
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 COPY . /app
-WORKDIR /app 
-CMD python3 server.py
+WORKDIR /app
+ENTRYPOINT ["python3", "server.py"]
