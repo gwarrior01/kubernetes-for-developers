@@ -16,4 +16,4 @@ spec:
     spec:
       containers:
       - name: timeserver-container
-        image: docker.io/wdenniss/timeserver:2
+        image: timeserver-java:2

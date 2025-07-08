@@ -19,4 +19,24 @@ spec:
     spec:
       containers:
       - name: timeserver-container
-        image: docker.io/wdenniss/timeserver:3
+        image: timeserver-java:2
+        readinessProbe:
+          initialDelaySeconds: 15
+          periodSeconds: 30
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+            scheme: HTTP
+          timeoutSeconds: 2
+          failureThreshold: 1
+          successThreshold: 1
+        livenessProbe:
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+            scheme: HTTP
+          timeoutSeconds: 5
+          failureThreshold: 10
+          successThreshold: 1
