@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: timeserver
+  name: timeserver-java
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      pod: timeserver-pod
+      pod: timeserver-java
   template:
     metadata:
       labels:
-        pod: timeserver-pod
+        pod: timeserver-java
     spec:
       containers:
       - name: timeserver-container
-        image: docker.io/wdenniss/timeserver:3
+        image: timeserver-java:2
         resources:
           requests:
             cpu: 200m
-            memory: 250Mi
+            memory: 200Mi
           limits:
-            cpu: 300m
-            memory: 400Mi
+            cpu: 2000m
+            memory: 450Mi

@@ -1,23 +1,24 @@
-# A Deployment that uses a priority class
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: timeserver
+  name: timeserver-python
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      pod: timeserver-pod
+      pod: timeserver-python
   template:
     metadata:
       labels:
-        pod: timeserver-pod
+        pod: timeserver-python
     spec:
-      priorityClassName: high-priority
       containers:
       - name: timeserver-container
-        image: timeserver-java:1
+        image: timeserver-python:1
         resources:
           requests:
             cpu: 200m
             memory: 250Mi
+          limits:
+            cpu: 300m
+            memory: 400Mi
