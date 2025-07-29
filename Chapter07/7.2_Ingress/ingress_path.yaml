@@ -3,6 +3,7 @@ kind: Ingress
 metadata:
   name: timeserver-ingress
 spec:
+  ingressClassName: nginx
   rules:
   - http:
       paths:
@@ -12,11 +13,4 @@ spec:
           service:
             name: timeserver-internal
             port:
-              number: 80
-      - path: /robohash
-        pathType: Prefix
-        backend:
-          service:
-            name: robohash-internal
-            port:
-              number: 80
+              number: 8080

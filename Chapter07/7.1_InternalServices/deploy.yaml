@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timeserver
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      pod: timeserver-pod
+  template:
+    metadata:
+      labels:
+        pod: timeserver-pod
+    spec:
+      containers:
+      - name: timeserver-container
+        image: timeserver-java:5
+        resources:
+          requests:
+            cpu: 200m
+            memory: 250Mi
+          limits:
+            cpu: 300m
+            memory: 400Mi
+        env:
+          - name: KUBERNETES_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
