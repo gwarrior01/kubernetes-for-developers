@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mariadb-client
+  labels:
+    app: mariadb-client
+spec:
+  containers:
+    - name: mariadb-client
+      image: mariadb:11
+      command: [ "sleep", "infinity" ]

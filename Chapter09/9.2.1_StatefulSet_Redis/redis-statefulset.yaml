@@ -26,7 +26,7 @@ spec:
           mountPath: /redis/data
         resources:
           requests:
-            cpu: 1
+            cpu: 1000m
             memory: 4Gi
       volumes:
       - name: redis-configmap-volume

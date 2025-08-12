@@ -1,0 +1,1 @@
+kubectl exec -it redis-0 -- redis-cli

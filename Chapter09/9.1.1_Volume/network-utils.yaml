@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: network-utils
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: network-utils
+  template:
+    metadata:
+      labels:
+        app: network-utils
+    spec:
+      containers:
+        - name: network-utils
+          image: amouat/network-utils
+          command: ["/bin/bash"]
+          tty: true
+          stdin: true
+          env:
+            - name: TIMESERVER_ENDPOINT
+              value: http://$(TIMESERVER_SERVICE_HOST):$(TIMESERVER_SERVICE_PORT)

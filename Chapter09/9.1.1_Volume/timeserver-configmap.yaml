@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: timeserver-config
+data:
+  DEFAULT_TIME: 2025-02-28T00:00:00Z
+  LONG_CONFIG: |
+    This is a long config value that spans multiple lines.
+    It can be used to provide detailed configuration settings
+    for the timeserver application.
+
+
+#2025_08_12_17_37_02.1677463186:

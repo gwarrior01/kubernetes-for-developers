@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: timeserver
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      pod: timeserver-pod
+  template:
+    metadata:
+      labels:
+        pod: timeserver-pod
+    spec:
+      containers:
+      - name: timeserver-container
+        image: timeserver-java:6
+        resources:
+          requests:
+            cpu: 200m
+            memory: 250Mi
+          limits:
+            cpu: 300m
+            memory: 400Mi
+        volumeMounts:
+          - name: configmap-volume
+            mountPath: /tmp/conf/etc.conf
+#        envFrom:
+#          - configMapRef:
+#              name: timeserver-config
+        env:
+          - name: KUBERNETES_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
+          - name: DEFAULT_TIME
+            valueFrom:
+              configMapKeyRef:
+                key: DEFAULT_TIME
+                name: timeserver-config
+          - name: SECRET_TIME
+            valueFrom:
+              secretKeyRef:
+                key: SECRET_TIME
+                name: timeserver-secret
+      volumes:
+        - name: configmap-volume
+          configMap:
+            name: timeserver-config
