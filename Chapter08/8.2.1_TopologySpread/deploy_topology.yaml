@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: timeserver
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       pod: timeserver-pod
@@ -12,17 +12,20 @@ spec:
       labels:
         pod: timeserver-pod
     spec:
-      topologySpreadConstraints:
-      - maxSkew: 1
-        topologyKey: kubernetes.io/hostname
-        whenUnsatisfiable: ScheduleAnyway
-        labelSelector:
-          matchLabels:
-            pod: timeserver-pod
+      nodeSelector:
+        kubernetes.io/hostname: minikube-m02
       containers:
       - name: timeserver-container
-        image: docker.io/wdenniss/timeserver:5
+        image: timeserver-java:5
         resources:
           requests:
             cpu: 200m
             memory: 250Mi
+          limits:
+            cpu: 300m
+            memory: 400Mi
+        env:
+          - name: KUBERNETES_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: network-utils
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: network-utils
+  template:
+    metadata:
+      labels:
+        app: network-utils
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: pod
+                    operator: In
+                    values:
+                      - timeserver-pod
+              topologyKey: kubernetes.io/hostname
+      containers:
+        - name: network-utils
+          image: amouat/network-utils
+          command: ["/bin/bash"]
+          tty: true
+          stdin: true
+          env:
+            - name: TIMESERVER_ENDPOINT
+              value: http://timeserver:8080

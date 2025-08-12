@@ -24,7 +24,4 @@ spec:
                 - amd64
       containers:
       - name: timeserver-container
-        image: docker.io/wdenniss/timeserver:5
-        resources:
-          requests:
-            cpu: 500m
+        image: timeserver-java:5

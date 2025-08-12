@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: timeserver
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       pod: timeserver-pod
@@ -12,8 +12,20 @@ spec:
       labels:
         pod: timeserver-pod
     spec:
-      nodeSelector:
-        kubernetes.io/arch: arm64
+#      nodeSelector:
+#        two.pages/type: lucky
       containers:
       - name: timeserver-container
-        image: docker.io/wdenniss/timeserver:5
+        image: timeserver-java:5
+        resources:
+          requests:
+            cpu: 200m
+            memory: 250Mi
+          limits:
+            cpu: 300m
+            memory: 400Mi
+        env:
+          - name: KUBERNETES_POD_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
