@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: gateway
+  template:
+    metadata:
+      labels:
+        pod: gateway
+    spec:
+      containers:
+        - name: gateway-container
+          image: gateway:1
+          args:
+            - "-jar"
+            - "/application/application.jar"
+          resources:
+            requests:
+              cpu: 200m
+              memory: 250Mi
+            limits:
+              cpu: 300m
+              memory: 400Mi
+          env:
+            - name: OTEL_SERVICE_NAME
+              value: gateway-service
+            - name: OTEL_TRACES_EXPORTER
+              value: none
+            - name: OTEL_LOGS_EXPORTER
+              value: none
+            - name: OTEL_METRICS_EXPORTER
+              value: none
+            - name: JAVA_TOOL_OPTIONS
+              value: "-javaagent:/opt/app/opentelemetry-javaagent.jar"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+  labels:
+    app: gateway
+spec:
+  selector:
+    pod: gateway
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

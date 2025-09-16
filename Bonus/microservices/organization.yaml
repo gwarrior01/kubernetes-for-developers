@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: organization
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: organization
+  template:
+    metadata:
+      labels:
+        pod: organization
+    spec:
+      containers:
+        - name: organization-container
+          image: organization:1
+          args:
+            - "-jar"
+            - "/application/application.jar"
+          resources:
+            requests:
+              cpu: 200m
+              memory: 250Mi
+            limits:
+              cpu: 300m
+              memory: 400Mi
+          env:
+            - name: DB_URL
+              value: postgres-service:5432
+            - name: OTEL_SERVICE_NAME
+              value: organization-service
+            - name: OTEL_TRACES_EXPORTER
+              value: none
+            - name: OTEL_LOGS_EXPORTER
+              value: none
+            - name: OTEL_METRICS_EXPORTER
+              value: none
+            - name: JAVA_TOOL_OPTIONS
+              value: "-javaagent:/opt/app/opentelemetry-javaagent.jar"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: organization
+  labels:
+    app: organization
+spec:
+  selector:
+    pod: organization
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

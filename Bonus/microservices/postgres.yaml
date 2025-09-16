@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  selector:
+    matchLabels:
+      app: postgres-sts
+  serviceName: postgres-service
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: postgres-sts
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: postgres-container
+        image: postgres:17
+        ports:
+          - containerPort: 5432
+        volumeMounts:
+          - name: postgres-pvc
+            mountPath: /var/lib/postgresql/data
+#            subPath: data  # чтобы путь оставался стабильным
+        resources:
+          requests:
+            cpu: 1000m
+            memory: 4Gi
+        env:
+        - name: POSTGRES_DB
+          value: "ms"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "postgres"
+        readinessProbe:
+          tcpSocket: { port: 5432 }
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-pvc
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+  labels: { app: postgres-sts }
+spec:
+  clusterIP: None
+  selector: { app: postgres-sts }
+  ports:
+    - port: 5432
+      targetPort: 5432

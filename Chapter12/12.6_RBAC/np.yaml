@@ -1,0 +1,12 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: timeserver-deny-all-ingress
+  namespace: rbac
+spec:
+  podSelector:
+    matchLabels:
+      app: timeserver-pod
+  policyTypes:
+    - Ingress
+  ingress: []

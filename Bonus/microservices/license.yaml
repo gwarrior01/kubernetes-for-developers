@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: license
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: license
+  template:
+    metadata:
+      labels:
+        pod: license
+    spec:
+      containers:
+        - name: license-container
+          image: license:1
+          args:
+            - "-jar"
+            - "/application/application.jar"
+          resources:
+            requests:
+              cpu: 200m
+              memory: 250Mi
+            limits:
+              cpu: 300m
+              memory: 400Mi
+          env:
+            - name: DB_URL
+              value: postgres-service:5432
+            - name: LICENSE_CLIENT_SECRET
+              value: k1QZzJnrXUYU4aqRRWxIfONHMB7DLfZF
+            - name: OTEL_SERVICE_NAME
+              value: license-service
+            - name: OTEL_TRACES_EXPORTER
+              value: none
+            - name: OTEL_LOGS_EXPORTER
+              value: none
+            - name: OTEL_METRICS_EXPORTER
+              value: none
+            - name: JAVA_TOOL_OPTIONS
+              value: "-javaagent:/opt/app/opentelemetry-javaagent.jar"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: license
+  labels:
+    app: license
+spec:
+  selector:
+    pod: license
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP

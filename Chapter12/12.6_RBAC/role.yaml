@@ -1,31 +1,9 @@
-apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
 metadata:
-  name: developer-access
-  namespace: team1
+  namespace: rbac
+  name: pod-reader
 rules:
-  - apiGroups:
-    - "" # "" indicates the core API group
-    resources:
-    - namespaces
-    verbs: ["get"]
-  - apiGroups:
-    - ""
-    resources:
-    - events
-    - pods
-    - pods/log
-    - pods/portforward
-    - services
-    - secrets
-    - configmaps
-    - persistentvolumeclaims
-    verbs: ["*"]
-  - apiGroups:
-    - apps
-    - autoscaling
-    - batch
-    - networking.k8s.io
-    - policy
-    resources: ["*"]
-    verbs: ["*"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]

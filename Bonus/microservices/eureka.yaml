@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      pod: eureka
+  template:
+    metadata:
+      labels:
+        pod: eureka
+    spec:
+      containers:
+        - name: eureka-container
+          image: eureka:1
+          resources:
+            requests:
+              cpu: 200m
+              memory: 250Mi
+            limits:
+              cpu: 300m
+              memory: 400Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka
+  labels:
+    app: eureka
+spec:
+  selector:
+    pod: eureka
+  ports:
+    - name: http
+      port: 8071
+      targetPort: 8071
+  type: ClusterIP

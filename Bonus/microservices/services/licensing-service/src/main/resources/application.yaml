@@ -1,0 +1,103 @@
+spring:
+  application:
+    name: licensing-service
+  jpa:
+    hibernate:
+      ddl-auto: none
+      naming-strategy: org.hibernate.cfg.ImprovedNamingStrategy
+    database: POSTGRESQL
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  database:
+    driverClassName: org.postgresql.Driver
+  datasource:
+    url: jdbc:postgresql://${DB_URL}/lic
+    username: postgres
+    password: postgres
+    platform: postgres
+    testWhileIdle: true
+    validationQuery: "SELECT 1"
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+    openfeign:
+      client:
+        config:
+          default:
+            logger-level: full
+  security:
+    oauth2:
+      client:
+        registration:
+          license:
+            client-id: license
+            client-secret: ${LICENSE_CLIENT_SECRET}
+            authorization-grant-type: client_credentials
+            provider: keycloak
+        provider:
+          keycloak:
+            token-uri: http://${KEYCLOAK_SERVICE_HOST}:${KEYCLOAK_SERVICE_PORT}/realms/two-pages/protocol/openid-connect/token
+
+example:
+  property: "I AM THE DEFAULT"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+    enabled-by-default: true
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://${EUREKA_SERVICE_HOST}:${EUREKA_SERVICE_PORT}/eureka/
+
+resilience4j.circuitbreaker:
+  instances:
+    licenseService:
+      registerHealthIndicator: true
+      slidingWindowSize: 5
+      permittedNumberOfCallsInHalfOpenState: 3
+      waitDurationInOpenState: 60s
+      failureRateThreshold: 50
+      recordExceptions:
+        - org.springframework.web.client.HttpServerErrorException
+        - java.io.IOException
+        - java.util.concurrent.TimeoutException
+        - org.springframework.web.client.ResourceAccessException
+    organizationService:
+      registerHealthIndicator: true
+      slidingWindowSize: 6
+      permittedNumberOfCallsInHalfOpenState: 4
+      waitDurationInOpenState: 20s
+      failureRateThreshold: 60
+
+resilience4j.ratelimiter:
+  instances:
+    licenseService:
+      limitForPeriod: 5
+      limitRefreshPeriod: 5000
+      timeoutDuration: 1000ms
+
+resilience4j.retry:
+  instances:
+    retryLicenseService:
+      maxAttempts: 5
+      waitDuration: 10000
+      retry-exceptions:
+        - java.util.concurrent.TimeoutException
+
+resilience4j.thread-pool-bulkhead:
+  instances:
+    bulkheadLicenseService:
+      maxThreadPoolSize: 1
+      coreThreadPoolSize: 1
+      queueCapacity: 1
