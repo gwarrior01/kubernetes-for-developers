@@ -1,0 +1,100 @@
+replicaCount: 1
+
+image:
+  repository: timeserver-java
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "10"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8080
+
+autoscaling:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 250Mi
+  limits:
+    cpu: 300m
+    memory: 400Mi
+
+liveness:
+  delay: 15
+  timeout: 10
+  path: /actuator/health/liveness
+
+readiness:
+  delay: 15
+  timeout: 10
+  path: /actuator/health/readiness
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+# - name: foo
+#   mountPath: "/etc/foo"
+#   readOnly: true
+
+envs:
+  - name: KUBERNETES_POD_NAME
+    valueFrom:
+      fieldRef:
+        apiVersion: v1
+        fieldPath: metadata.name
+  - name: DEFAULT_TIME
+    valueFrom:
+      configMapKeyRef:
+        key: DEFAULT_TIME
+        name: timeserver-config
+  - name: SECRET_TIME
+    valueFrom:
+      secretKeyRef:
+        key: SECRET_TIME
+        name: timeserver-secret
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+configMap:
+    create: true
+    data:
+      DEFAULT_TIME: "2024-01-01T00:00:00Z"
+
+secret:
+  create: true
+  stringData:
+    SECRET_TIME: "2024-01-12T00:00:00Z"
+
+metrics:
+  enabled: true
+  serviceMonitor:
+    path: /actuator/prometheus
+    jobLabel: ""
+    interval: 15s
+    scrapeTimeout: ""

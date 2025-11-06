@@ -1,0 +1,40 @@
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about the release, try:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+The timeserver application has been deployed with the following components:
+- Deployment: {{ include "app.fullname" . }}
+- Service: {{ include "app.fullname" . }}
+{{- if .Values.createConfigMap }}
+- ConfigMap: {{ include "app.configMapName" . }}
+{{- end }}
+{{- if .Values.createSecret }}
+- Secret: {{ include "app.secretName" . }}
+{{- end }}
+
+To access the timeserver service from within the cluster:
+
+  $ kubectl run -it --rm debug --image=busybox --restart=Never -- wget -O- http://{{ include "app.fullname" . }}:{{ .Values.service.port }}
+
+To get the application URL:
+{{- if eq .Values.service.type "NodePort" }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "app.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if eq .Values.service.type "LoadBalancer" }}
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+  You can watch the status by running:
+  $ kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "app.fullname" . }}
+
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "app.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+{{- else if eq .Values.service.type "ClusterIP" }}
+  $ kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ include "app.fullname" . }} 8080:{{ .Values.service.port }}
+
+  Then access the application at: http://127.0.0.1:8080
+{{- end }}
